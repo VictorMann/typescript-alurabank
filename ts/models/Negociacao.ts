@@ -1,5 +1,11 @@
 class Negociacao
 {
+    // declaração das propriedades de classe
+    // typescript
+    private _data;
+    private _quantidade;
+    private _valor;
+
     constructor (data, quantidade, valor)
     {
         this._data = data;
