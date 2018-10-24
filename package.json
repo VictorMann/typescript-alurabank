@@ -1,0 +1,26 @@
+{
+  "name": "alurabank",
+  "version": "1.0.0",
+  "description": "<h1>Projeto Alura</h1>\r <h3>title: TypeScript : Evoluindo seu javascript</h3>\r <section>\r     <p>\r         Este projeto destina-se como aprimoramento profissional, visando capacitação e qualificação para o mercado de trabalho.\r     </p>\r </section>\r <section>\r     <em>Descrição</em>\r     <p>\r         Aplicação web de cadastro de negociações de bolsas de valores.\r     </p>\r </section>",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "compile": "tsc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/VictorMann/typescript-alurabank.git"
+  },
+  "author": "victorcmann",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/VictorMann/typescript-alurabank/issues"
+  },
+  "homepage": "https://github.com/VictorMann/typescript-alurabank#readme",
+  "devDependencies": {
+    "typescript": "^2.3.2"
+  }
+}
