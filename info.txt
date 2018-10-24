@@ -13,3 +13,23 @@ A diferença entre o código que escrevemos e o código compilado
 O modificador de acesso private
 Compilação em tempo real dos arquivos .ts
 =========================
+MODULO 2
+
+O TypeScript infere o tipo, sendo assim, a sintaxe é a mesma coisa que:
+
+let nome: string = 'Flávio';
+let idade: number = 20;
+Se fizermos typeof nas duas variáveis temos como resultado string e number respectivamente:
+
+let nome: string = 'Flávio';
+console.log(typeof(nome));  // string
+let idade: number = 20; 
+console.log(typeof(idade));// number
+
+Neste capítulo, vimos:
+
+O tipo implícito any
+Utilização de tipos explícitos
+Conversão explícita de tipos através de casting
+Benefícios de utilizarmos os tipo específicos
+=========================
