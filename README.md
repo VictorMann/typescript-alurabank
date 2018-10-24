@@ -1,5 +1,5 @@
 <h1>Projeto Alura</h1>
-<h3>title: TypeScript : Evoluindo seu javascript
+<h3>title: TypeScript : Evoluindo seu javascript</h3>
 <section>
     <p>
         Este projeto destina-se como aprimoramento profissional, visando capacitação e qualificação para o mercado de trabalho.
