@@ -1,0 +1,15 @@
+MODULO 1
+
+Podemos automatizar o processo de compilação que será disparado toda vez que um arquivo .ts for modificado. Para isso, vamos adicionar mais um script em alurabank/package.json, o script 
+"start": "tsc -w":
+para rodar:
+npm start
+
+Nesse capítulo, vimos:
+
+Modelagem da classe Negociacao utilizando a sintaxe private.
+Instalação e configuração do compilador TypeScript
+A diferença entre o código que escrevemos e o código compilado
+O modificador de acesso private
+Compilação em tempo real dos arquivos .ts
+=========================
