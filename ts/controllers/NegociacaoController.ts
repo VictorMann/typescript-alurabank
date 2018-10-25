@@ -6,6 +6,7 @@ class NegociacaoController
     // o ts define por si só o tipo ref a instancia _negocicoes :Negociacoes
     private _negociacoes = new Negociacoes;
     private _negociacoesView = new NegociacoesView('#negociacoesView');
+    private _mensagemView = new MensagemView('#mensagemView');
 
     constructor ()
     {
@@ -34,5 +35,7 @@ class NegociacaoController
         this._negociacoes.adiciona(negocicao);
         // renderiza
         this._negociacoesView.update(this._negociacoes);
+        // exibe mensagem
+        this._mensagemView.update('Negociação adicionada!');
     }
 }
