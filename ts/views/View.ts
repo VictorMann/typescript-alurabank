@@ -1,9 +1,9 @@
 // <T> sigfica um tipo que as classes filhas podem definir
 // para passar aos metodos herdados não sendo um tipo unico em cada classe que
 // herdar aquele metodo 
-class View<T>
+abstract class View<T>
 {
-    protected _elemento: Element;
+    private _elemento: Element;
 
     constructor (seletor: string)
     {
@@ -19,8 +19,5 @@ class View<T>
 
     // alternativa para dizer metodo obrigatório a ser definido
     // na classe que faz a herança desta
-    template (model: T): string
-    {
-        throw new Error('Você deve implementar o método template');
-    }
+    abstract template (model: T): string;
 }
