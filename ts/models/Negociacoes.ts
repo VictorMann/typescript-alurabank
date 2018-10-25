@@ -3,6 +3,7 @@ class Negociacoes
     // definindo o tipo que o array aceita
     private _negocicoes: Array<Negociacao> = [];
 
+    // É uma boa prática sempre tipar o retorno mesmo que não retorne algo
     adiciona (negociacao: Negociacao): void
     {
         this._negocicoes.push(negociacao);
