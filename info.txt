@@ -33,3 +33,12 @@ Utilização de tipos explícitos
 Conversão explícita de tipos através de casting
 Benefícios de utilizarmos os tipo específicos
 =========================
+MODULO 3
+
+Vimos neste capítulo:
+
+Criando de um novo modelo para encapsular uma lista de objetos do tipo Negociacao.
+Array e generics
+Manipulação declarativa do DOM através de template
+Template dinâmico
+=========================
