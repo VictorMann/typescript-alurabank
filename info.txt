@@ -42,3 +42,11 @@ Array e generics
 Manipulação declarativa do DOM através de template
 Template dinâmico
 =========================
+MODULO 4
+
+Vimos neste capítulo:
+
+Reuso de código através de herança
+Generics
+Classes abstratas
+=========================
