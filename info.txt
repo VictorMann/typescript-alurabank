@@ -50,3 +50,48 @@ Reuso de código através de herança
 Generics
 Classes abstratas
 =========================
+MODULO 5
+
+jQuery foi criado com TypeScript? Com certeza não e, se não foi, não possui variáveis, propriedades e parâmetro de métodos e funções tipados. Então, como suportar os recursos da linguagem TypeScript com uma biblioteca que não foi criada utilizando nessa linguagem?
+
+Os criadores da biblioteca ou terceiros podem criar um arquivo chamado TypeScript Declaration File. Este arquivo possui informações dos nomes de métodos e funções, inclusive tipos que podem ser utilizados pelo TypeScript. Quando carregado, o TypeScript conseguirá, baseado nesse arquivo, realizar checagem estática inclusive lançar mão de todos seu poder através de seu editor ou IDE favorita.
+
+No caso, vamos instalar o tipo do jQuery. Vale lembrar que esse tipo não foi definido pela equipe do jQuery:
+
+npm install @types/jquery@2.0.42 --save-dev
+
+*Para saber mais: o repositório @types
+No npm, existe uma série de TypeScript definitons files para as mais diversas bibliotecas e frameworks do mercado. Por exemplo, se quisermos instalar o tds do jQuery, acessamos
+
+https://www.npmjs.com/package/@types/jquery
+
+Se quisermos do lodash ou underscore acessamos
+
+https://www.npmjs.com/package/@types/lodash
+
+https://www.npmjs.com/package/@types/underscore
+Dessa forma, antes de sair buscando pela internet os arquivos tsd que precisamos, podemos tentar a sorte executando o comando:
+
+npm install @types/nomeDaLibOuFramework --save-dev
+Nesse sentido, se quisermos instalar os tds das três bibliotecas que foram citadas, fazemos:
+
+npm install @types/jquery --save-dev
+npm install @types/loadash --save-dev
+npm install @types/underscore --save-dev
+Qualquer tds files que esteja dentro de node_modules/@types será lidado automaticamente pelo compilador do TypeScript.
+
+É preciso se conformar quando não houver do Typing para sua biblioteca preferia, neste caso, a estratégia do declare var que vimos neste treinamento é uma saída, não muito ideal, mas que permitirá seu código compilar até que você encontre seu tsd.
+
+Não é raro o desenvolvedor querer comentar seu código, seja no estilo livro ou usando uma forma padronizada. No entanto, não faz sentido esses comentários irem para o arquivo de produção, pois além de deixarem evidente para terceiros o que o código que escrevemos faz, ainda acaba impactando no tamanho final do arquivo.
+
+Podemos resolver esse problema facilmente solicitando ao compilador do TypeScript que remova todos os comentários do arquivo JavaScript resultante da compilação do nosso código TypeScript. Para isso, basta adicionar a propriedade "removeComments": true no arquivo tsconfig.json.
+
+Vimos neste capítulo:
+
+O problema de usarmos bibliotecas que ficam no escopo global e que não foram criados com TypeScript
+"Calar a boca" do compilador com declare var.
+As desvantagens de declare var com o tipo any.
+O papel do TypeScript Definition.
+Instalação de arquivos td.s de terceiros
+Remoção de comentário durante a compilação
+=========================
