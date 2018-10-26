@@ -95,3 +95,101 @@ O papel do TypeScript Definition.
 Instalação de arquivos td.s de terceiros
 Remoção de comentário durante a compilação
 =========================
+----
+# # PARTE 2
+----
+
+=========================
+MODULO 1
+Hoje a definição das nossas classes vivem no escopo global. Além disso, para que o desenvolvedor saiba quais são as classes disponíveis pelo autocomplete do TypeScript ele precisa saber pelo menos parte do nome. Contudo, TypeScript oferece o conceito de namespace. Podemos agrupar classes dentro de um mesmo namepace e acessá-las através dele.
+
+No caso, vamos envolver todas as classes dentro de alurabank/app/views no namespace Views:
+
+namespace Views {
+
+    export abstract class View<T> {
+
+        protected _elemento: JQuery;
+
+        constructor(seletor: string) {
+
+            this._elemento = $(seletor);
+        }
+
+        update(model: T) {
+
+            this._elemento.html(this.template(model));
+        }
+
+        abstract template(model: T): string;
+
+    }
+
+}
+
+A sintaxe de módulos do ES2015 considera cada script um módulo e através das instruções import e export importamos e exportamos artefatos respectivamente.
+Adequando todos os arquivos para o sistema de módulos do ES2015:
+import { View } from './View';
+import { Negociacoes } from '../models/Negociacoes';
+
+export class NegociacoesView extends View<Negociacoes> {
+    ...
+}
+
+LITE-SERVER
+Como vimos, precisamos servir nossa aplicação através de um servidor web. Utilizaremos o lite-server. Além dele servir a pasta alurabanl/app para nós, ele ainda suporta livereloading através do BrowserSync que traz embutido. Isso é perfeito, pois toda vez que os arquivos .ts forem modificados e os arquivos .js gerados nosso navegador automaticamente será recarregado.
+
+Rodando scripts paralelamente com o módulo concurrently
+Vamos instalar o módulo concurrently. Ele nos permitirá rodar os dois scripts que criamos em paralelo nas plataformas Windows, MAC e Linux.
+
+Agora, vamos renomear o script "start" para "watch" e adicionar novamente o script "start" que chamará o módulo concurrently:
+
+{
+  "name": "alurabank",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "compile": "tsc",
+    "watch": "tsc -w",
+    "server": "lite-server --baseDir=app",
+    "start": "concurrently \"npm run watch\" \"npm run server\""
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/jquery": "^2.0.42",
+    "concurrently": "^3.4.0",
+    "lite-server": "^2.3.0",
+    "typescript": "^2.3.2"
+  }
+}
+Excelente, agora, no terminal, basta executarmos o comando npm start para termos os dois serviços rodando em paralelo em um único terminal.
+
+npm start
+
+Podemos simplificar bastante a importação dos módulos através da estratégia Barrel (barril). Nela, um módulo importa e exporta todos os artefatos de uma pasta permitindo assim que apenas o barril seja importado na cláusula from.
+
+Vejamos:
+
+// app/ts/views/index.ts
+
+export * from './View'; 
+export * from './MensagemView'; 
+export * from './NegociacoesView';
+// app/ts/models/index.ts
+
+export * from './Negociacao'; 
+export * from './Negociacoes';
+
+O loader utilizado nos obriga a escrever index no final da importação do módulo. Projetos em Angular e Ionic que fazem uso do Webpack podem omiti-lo na importação. O importante é sabermos desta forma prática de organizar nossos módulos.
+
+Aprendemos neste capítulo:
+
+A utilizar namespaces
+Sistemas de módulos do ES2015
+O papel de um loader
+Levantar um servidor local
+Organização de módulo em barris
+=========================
