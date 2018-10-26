@@ -4,7 +4,7 @@
 // <T> sigfica um tipo que as classes filhas podem definir
 // para passar aos metodos herdados não sendo um tipo unico em cada classe que
 // herdar aquele metodo 
-abstract class View<T>
+export abstract class View<T>
 {
     private _elemento: JQuery;
 

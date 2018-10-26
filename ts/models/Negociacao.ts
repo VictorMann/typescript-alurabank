@@ -1,4 +1,4 @@
-class Negociacao
+export class Negociacao
 {
     // declaração das propriedades de classe
     // typescript
