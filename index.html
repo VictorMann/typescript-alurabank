@@ -40,5 +40,14 @@
     <div id="negociacoesView"></div>
 
     <script src="lib/jquery.min.js"></script>
+    <script src="lib/system.js"></script>
+    <script>
+        // define extensão padrão .js para os arquivos importados
+        // desse modo podemos omitir a extensão no caminho do arquivo
+        System.defaultJSExtensions = true;
+        // 1° script a ser carrega, que desencadeará o carregamento
+        // dos restantes
+        System.import('js/app.js').catch(err => console.error(err));
+    </script>
 </body>
 </html>
