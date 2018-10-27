@@ -336,3 +336,78 @@ Parâmetros opcionais
 Habilitar strictNullCheck
 O uso de Enum
 =========================
+MODULO 3
+
+Podemos isolar a lógica do nosso teste de performance em um único lugar e aplicá-lo nos métodos que temos interesse sem que tenhamos que modificar sua implementação. Para tal, precisamos ativar em nosso compilador TypeScript a configuração experimentalDecorators. Quando true, permite utilizar decorators, estrutura que atenderá nossa finalidade.
+
+Como criar um decorator? Vamos criar o arquivo app/ts/helpers/decorators/logarTempoDeExecucao.ts e nele exportamos uma função de mesmo nome:
+
+export function logarTempoDeExecucao() {
+    ...
+}
+
+Agora, importando e utilizando em View
+
+import { logarTempoDeExecucao } from '../helpers/decorators/index';
+
+export abstract class View<T> {
+    ...
+    @logarTempoDeExecucao()
+    update(model: T) {
+        ...
+    }
+}
+
+Usamos decorator através de um @, seguido do nome do decorator, abrindo e fechando parênteses no final, justo, porque um decorator nada mais é do que uma função.
+
+Recarregando nossa aplicação tudo continua funcionando. Agora precisamos escrever a lógica do teste de performance em nosso decorator.
+
+Nossa aplicação é funcional, mas podemos organizar ainda melhor nosso código. Percebam que no constructor() de NegociacaoController procuramos os elementos do DOM para que possamos extrair seus valores ao adicionarmos uma negociação. Essa busca é feita assim que nossa classe é instanciada. Mas se o usuário abre a aplicação e desiste de adicionar negociações? Nós teríamos varrido o DOM desnecessariamente. Além disso, se nossa aplicação crescer e tiver que interagir com mais elementos, já estaríamos buscando todos de uma vez. Podemos melhorar isso com auxílio de decorators de propriedades.
+
+Antes de criarmos nosso decorator, queremos algo assim:
+
+import { NegociacoesView, MensagemView } from '../views/index';
+import { Negociacoes, Negociacao } from '../models/index';
+
+export class NegociacaoController {
+
+@domInject('#data')
+private _inputData: JQuery;
+
+@domInject('#quantidade')
+private _inputQuantidade: JQuery;
+
+@domInject('#valor')
+private _inputValor: JQuery;
+....
+}
+
+Nosso código não compila, claro, mas a ideia é injetarmos os elementos do DOM diretamente na propriedade da classe. Além disso, usaremos a estratégia de lazy loading. Por debaixo dos panos, vamos substituir cada propriedade por um getter. Sendo um getter, podemos escrever um bloco de código que ainda assim para o JavaScript ele será considerado uma propriedade. Nesse bloco de código, só buscaremos o elemento do DOM quando o getter for acessado pela primeira vez. Novos acessos retornarão o mesmo elemento!
+
+// app/ts/helpers/decorators/domInject.ts 
+
+export function domInject(seletor: string) {
+
+    return function(target: any, key: string) {
+
+        let elemento: JQuery;
+
+        const getter = function() {
+
+            if(!elemento) {
+                console.log(`buscando  ${seletor} para injetar em ${key}`);
+                elemento = $(seletor);
+            }
+
+            return elemento;
+        }
+    }
+}
+
+Aprendemos neste capítulo:
+
+Isolar requisitos funcionais através de decorators
+Decorators de métodos
+Decorators de propriedades
+A estratégia de lazy loading
+=========================
