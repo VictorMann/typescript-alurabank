@@ -10,7 +10,8 @@ export abstract class View<T>
     // para remover tag <script> do template
     private _escapar: boolean;
 
-    constructor (seletor: string, escapar?: boolean)
+    // escapar? tirou o tipo opcional que recebia undefined caso não fosse passado para um valor padrão, no caso false
+    constructor (seletor: string, escapar: boolean = false)
     {
         this._elemento = $(seletor);
         this._escapar = escapar;
