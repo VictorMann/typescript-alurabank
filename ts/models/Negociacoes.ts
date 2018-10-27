@@ -16,6 +16,7 @@ export class Negociacoes
     paraArray (): Negociacao[]
     {
         // programação defensiva
-        return [].concat(this._negocicoes);
+        // define que os elmentos do array serão apenas Negociacao
+        return ([] as Negociacao[]).concat(this._negocicoes);
     }
 }
