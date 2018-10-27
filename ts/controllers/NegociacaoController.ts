@@ -1,11 +1,18 @@
 import { Negociacao, Negociacoes } from '../models/index';
 import { NegociacoesView, MensagemView } from '../views/index';
+import { domInject } from '../helpers/decorators/index';
 
 export class NegociacaoController
 {
+    @domInject('#data')
     private _inputData: JQuery;
+
+    @domInject('#quantidade')
     private _inputQuantidade: JQuery;
+
+    @domInject('#valor')
     private _inputValor: JQuery;
+
     // o ts define por si só o tipo ref a instancia _negocicoes :Negociacoes
     private _negociacoes = new Negociacoes;
     private _negociacoesView = new NegociacoesView('#negociacoesView', true); // true: remove qualquer script no template
@@ -15,9 +22,12 @@ export class NegociacaoController
     {
         // casting : <HTMLInputElement>
         // convertendo para um tipo mais específico
-        this._inputData = $('#data');
-        this._inputQuantidade = $('#quantidade');
-        this._inputValor = $('#valor');
+        //
+        //  não é mais necessário devido a injeção nas propriedades com @domInject 
+        //
+        // this._inputData = $('#data');
+        // this._inputQuantidade = $('#quantidade');
+        // this._inputValor = $('#valor');
         // renderiza
         this._negociacoesView.update(this._negociacoes);
     }
