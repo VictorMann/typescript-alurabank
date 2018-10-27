@@ -7,17 +7,23 @@
 export abstract class View<T>
 {
     private _elemento: JQuery;
+    // para remover tag <script> do template
+    private _escapar: boolean;
 
-    constructor (seletor: string)
+    constructor (seletor: string, escapar?: boolean)
     {
         this._elemento = $(seletor);
+        this._escapar = escapar;
     }
 
     // T define um tipo como string, number, ou ate classes...
     // que as herdeiras definem em sua assinatura
     update (model: T): void
     {
-        this._elemento.html(this.template(model));
+        let template = this.template(model);
+        // se foi definido remove qualquer tag script
+        if (this._escapar) template = template.replace(/<script>[\s\S]*?<\/script>/g, '');
+        this._elemento.html(template);
     }
 
     // alternativa para dizer metodo obrigatório a ser definido
