@@ -8,7 +8,7 @@ export class NegociacaoController
     private _inputValor: JQuery;
     // o ts define por si só o tipo ref a instancia _negocicoes :Negociacoes
     private _negociacoes = new Negociacoes;
-    private _negociacoesView = new NegociacoesView('#negociacoesView');
+    private _negociacoesView = new NegociacoesView('#negociacoesView', true); // true: remove qualquer script no template
     private _mensagemView = new MensagemView('#mensagemView');
 
     constructor ()

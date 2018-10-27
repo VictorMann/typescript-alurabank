@@ -30,6 +30,8 @@ export class NegociacoesView extends View<Negociacoes>
             <tfoot>
             </tfoot>
         </table>
+        <!-- SCRIPT A SER REMOVIDO COM ESCAPE -->
+        <script>alert('oi')</script>
         `;
     }
 }

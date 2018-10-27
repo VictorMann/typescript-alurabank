@@ -193,3 +193,44 @@ O papel de um loader
 Levantar um servidor local
 Organização de módulo em barris
 =========================
+MODULO 2
+
+Nossa classe Negociacao possui atributos privados, pois não faz sentido alterarmos uma instância de Negociacao depois de criada. Vamos recapitular:
+
+export class Negociacao {
+
+    constructor(private _data: Date, private _quantidade: number, private _valor: number) {}
+
+    get data() {
+
+        return this._data;
+    }
+
+    get quantidade() {
+
+        return this._quantidade;
+    }
+
+    get valor() {
+
+        return this._valor;
+    }
+
+    get volume() {
+
+        return this._quantidade * this._valor;
+    }
+}
+
+Contudo, o TypeScript possui um atalho para declaração de propriedades somente leitura. Para isso, basta usarmos o modificador readonly.
+
+export class Negociacao {
+
+    constructor(readonly data: Date, readonly quantidade: number, readonly valor: number) {}
+
+    get volume() {
+
+        return this.quantidade * this.valor;
+    }
+}
+Veja que não foi necessário criar os getters para que pudéssemos acessar as propriedades que antes eram privadas. Agora, qualquer atribuição feita às propriedades resultarão em erro de compilação.
