@@ -1,3 +1,5 @@
+import { logarTempoDeExecucao } from '../helpers/decorators/index';
+
 // tornando jQuery public
 // declare var $: any;
 
@@ -19,6 +21,7 @@ export abstract class View<T>
 
     // T define um tipo como string, number, ou ate classes...
     // que as herdeiras definem em sua assinatura
+    @logarTempoDeExecucao()
     update (model: T): void
     {
         let template = this.template(model);
