@@ -234,3 +234,105 @@ export class Negociacao {
     }
 }
 Veja que não foi necessário criar os getters para que pudéssemos acessar as propriedades que antes eram privadas. Agora, qualquer atribuição feita às propriedades resultarão em erro de compilação.
+
+Esse código não compila. Parâmetros opcionais devem ser sempre os últimos parâmetros.
+function (a?: number, b?:number, c:number): void { ... }
+ 
+ Muitas vezes, atribuímos null e undefined à variáveis para realizarmos alguma espécie de controle. Mas esses tipos podem causar problemas em runtime em nosso código se não tivermos cuidado com eles:
+ let nome: string = '';
+nome = null; // algo permitido
+
+Contudo, o TypeScript possui o modo strickNullChecks. Neste modo, null e undefined não fazem parte do domínio dos tipos e só podem ser atribuídos a eles mesmos. Com a exceção de undefined, que pode ser atribuído a void. Isso pode ser interessante para evitarmos valores nulos e indefinidos em nosso projeto.
+Vamos ativá-lo em tsconfig.json:
+{
+    "compilerOptions": {
+        "target": "es6",
+        "outDir": "app/js",
+        "noEmitOnError": true, 
+        "noImplicitAny": true,
+        "removeComments": true,
+        "module": "system",
+        "strictNullChecks": true
+    },
+    "include": [
+        "app/ts/**/*"
+    ]
+}
+
+Agora, nosso código deixará de compilar.
+let nome: string = '';
+// erro de compilação
+nome = null;
+
+// deixarmos explícitos que a função pode retornar boolean ou null
+function minhaFuncao(flag: boolean): boolean | null {
+
+    let valor = null;
+    if(flag) return null;
+    return true;
+}
+
+let x = minhaFuncao(false);
+Agora, como explicitamos que seu retorno pode ser também null, nosso código passará pelo strictNullChecks. Curiosamente, linguagens como a Golang permitem uma função ou método ter mais de um tipo de retorno.
+
+TypeScript possui um tipo curioso, o tipo never. Este tipo é aplicável à métodos ou funções que por algum motivo, planejado ou não, podem não terminar sua execução de seu bloco.
+Exemplos clássicos são os de métodos que caem em um loop infinito ou de métodos que sempre retornam exceções. Exceções fazem com que o método não execute até o fim.
+Não confundir o tipo never com o tipo void. O segundo, apesar de indicar que a função ou método nada retorna, indica que a função ou método executará até o fim, mesmo que não retorne nada.
+Geralmente não usamos esse tipo em nosso código, mas ele pode aparecer como aviso do compilador. Quando aparecer, você já saberá que a execução do seu método nunca chegará até o fim, sendo um forte indicativo de um bug em seu código.
+
+
+Vamos alterar nosso código para não permitir que negociações feitas no sábado ou no domingo sejam cadastradas.
+
+// app-src/controllers/NegociacaoController.ts
+
+    adiciona(event: Event) {
+        ...
+        let data = new Date(this._inputData.val().replace(/-/g, ','));
+
+        if(data.getDay() == 0 || data.getDay() == 6) {
+
+            this._mensagemView.update('Somente negociações em dias úteis, por favor!');
+            return 
+        }
+        ...
+    }
+No entanto, ver em nosso código algo como ==0 e ==6 não nos diz muita coisa. Poderíamos até ter criado uma variável como sabado ou domingo, contudo o TypeScript possui um recurso mais elegante para o problema que estamos vendo, as enumerations.
+
+Dentro do mesmo arquivo que definimos nosso controller, vamos criar a enum DiaDaSemana:
+
+enum DiaDaSemana {
+    Domingo,
+    Segunda,
+    Terca,
+    Quarta, 
+    Quinta, 
+    Sexta, 
+    Sabado, 
+}
+
+// exemplo
+enum Tipo {
+
+    ESPECIAL,
+    PADRAO
+}
+
+Sabemos que o valor de Tipo.ESPECIAL e Tipo.PADRAO serão 0 e 1 respectivamente.
+
+Agora, em nosso código fazemos:
+
+let tipo: Tipo = Tipo.ESPECIAL;
+É uma sintaxe totalmente válida. E agora?
+
+let tipo: Tipo = 4;
+O código anterior compila? Compila! Se você vem de outra linguagem como Java ou C#, este código não compilaria, porque só poderíamos utilizar os tipos Tipo.ESPECIAL e Tipo.PADRAO.
+
+A questão é que a enum tem como subtipo number, por isso pode receber qualquer outro número que não esteja dentro do escopo da Enum.
+
+Aprendemos neste capítulo:
+
+Definir propriedades readonly
+Parâmetros opcionais
+Habilitar strictNullCheck
+O uso de Enum
+=========================
