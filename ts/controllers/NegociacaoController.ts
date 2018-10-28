@@ -3,6 +3,7 @@ import { NegociacoesView, MensagemView } from '../views/index';
 import { domInject, throttle } from '../helpers/decorators/index';
 import { NegociacaoPartial } from '../models/index';
 import { NegociacaoService } from '../services/index';
+import { imprime } from '../helpers/index';
 
 export class NegociacaoController
 {
@@ -49,14 +50,18 @@ export class NegociacaoController
         }
 
         // instanciando uma negociação
-        const negocicao = new Negociacao(
+        const negociacao = new Negociacao(
             data,
             parseInt(this._inputQuantidade.val()),
             parseFloat(this._inputValor.val())
         );
         
         // add negocicao à lista
-        this._negociacoes.adiciona(negocicao);
+        this._negociacoes.adiciona(negociacao);
+
+        // executa log
+        imprime(negociacao, this._negociacoes);
+
         // renderiza
         this._negociacoesView.update(this._negociacoes);
         // exibe mensagem
