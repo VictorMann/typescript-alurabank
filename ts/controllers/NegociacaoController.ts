@@ -60,6 +60,31 @@ export class NegociacaoController
         this._mensagemView.update('Negociação adicionada!');
     }
 
+    // obtem dados de uma API
+    importaDados ()
+    {
+        function isOk (res: Response) {
+            if (res.ok) return res;
+            throw new Error(res.statusText);
+        }
+        
+        // API Fetch
+        fetch('http://localhost:8080/dados')
+        .then(res => isOk(res))
+        .then(res => res.json())
+        .then((dados: any[]) => {
+            dados
+                .map(dado => new Negociacao(new Date(), dado.vezes, dado.montante))
+                .forEach(negociacao => this._negociacoes.adiciona(negociacao));
+            // renderiza os novos dados
+            this._negociacoesView.update(this._negociacoes);
+        })
+        .catch(err => {
+            console.log(err);
+            this._mensagemView.update('Não foi possível buscar a API');
+        });
+    }
+
     // valida se é dia útil
     private _ehDiaUtil (data: Date): boolean
     {
