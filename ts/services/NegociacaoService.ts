@@ -4,7 +4,7 @@ export class NegociacaoService
 {
     // o retorno de promise é necessário tipar o que será retornado
     // , no caso, Negociacao[] (array de negociacoes)
-    obterNegociacoes (handler: Function): Promise<Negociacao[]>
+    obterNegociacoes (handler: ResponseHandler): Promise<Negociacao[]>
     {
         return fetch('http://localhost:8080/dados')
             .then(res => handler(res))
@@ -14,4 +14,11 @@ export class NegociacaoService
             )
             .catch();
     }
+}
+
+// define uma interface que exige uma função qualquer que
+// precisa ter um param do tipo Response e retornar um tipo Response também
+export interface ResponseHandler
+{
+    (res: Response): Response
 }
