@@ -1,7 +1,8 @@
 import { Negociacao, Negociacoes } from '../models/index';
 import { NegociacoesView, MensagemView } from '../views/index';
-import { domInject } from '../helpers/decorators/index';
+import { domInject, throttle } from '../helpers/decorators/index';
 import { NegociacaoPartial } from '../models/index';
+import { NegociacaoService } from '../services/index';
 
 export class NegociacaoController
 {
@@ -18,6 +19,7 @@ export class NegociacaoController
     private _negociacoes = new Negociacoes;
     private _negociacoesView = new NegociacoesView('#negociacoesView', true); // true: remove qualquer script no template
     private _mensagemView = new MensagemView('#mensagemView');
+    private _negociacoesService = new NegociacaoService;
 
     constructor ()
     {
@@ -62,6 +64,8 @@ export class NegociacaoController
     }
 
     // obtem dados de uma API
+    // define intervalo, para evitar cliques consecutivos onerosamente
+    @throttle()
     importaDados ()
     {
         function isOk (res: Response) {
@@ -69,21 +73,19 @@ export class NegociacaoController
             throw new Error(res.statusText);
         }
         
-        // API Fetch
-        fetch('http://localhost:8080/dados')
-        .then(res => isOk(res))
-        .then(res => res.json())
-        .then((dados: NegociacaoPartial[]) => {
-            dados
-                .map(dado => new Negociacao(new Date(), dado.vezes, dado.montante))
-                .forEach(negociacao => this._negociacoes.adiciona(negociacao));
-            // renderiza os novos dados
-            this._negociacoesView.update(this._negociacoes);
-        })
-        .catch(err => {
-            console.log(err);
-            this._mensagemView.update('Não foi possível buscar a API');
-        });
+        this._negociacoesService
+            .obterNegociacoes(isOk)
+            .then(negociacoes => {
+                negociacoes.forEach(negociacao =>
+                    this._negociacoes.adiciona(negociacao)
+                );
+                // renderiza a as novas negociacoes
+                this._negociacoesView.update(this._negociacoes);
+            })
+            .catch(err => {
+                console.log(err);
+                this._mensagemView.update('Não foi possível buscar a API');
+            });
     }
 
     // valida se é dia útil
