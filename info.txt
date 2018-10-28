@@ -411,3 +411,177 @@ Decorators de métodos
 Decorators de propriedades
 A estratégia de lazy loading
 =========================
+MODULO 4
+
+Para consumirmos a API externa, utilizaremos a API fetch que usa o padrão de projeto Promise. Por usar Promise, seu uso é mais simplificado do que trabalharmos com XMLHttpRequest.
+
+// app/ts/controllers/NegociacaoController.js
+importarDados() {
+
+    fetch('http://localhost:8080/dados')
+
+}
+
+Através da chamada da função then temos acesso à resposta que precisa ser convertida (parse) adequadamente e a Fetch API já traz na própria resposta o método .json() que realiza essa conversão de JSON para objetos em JavaScript. Como usamos arrow function sem bloco, o resultado da instrução res.json() é retornado automaticamente sem a necessidade de usarmos um return e quando fazemos isso, temos acesso ao retorno na próxima chamada encadeada à função then.
+
+Contudo, pode ser que o servidor execute corretamente nossa operação (sem devolver erro 500, por exemplo), mas devolva algum código de status que indique erro, dessa forma, em vez de ficarmos acessando cada código em separadamente podemos acessar status.ok para saber se a resposta é válida com um status válido.
+
+Vamos isolar a lógica do teste em uma função que retorna res caso esteja tudo correto ou lance uma exceção caso haja algum problema. No caso, podemos usar o tipo Response para res, garantindo assim a checagem do TypeScript evitando o acesso a métodos que não existam, seja por um momento lacônico nosso ou por um erro de digitação:
+
+// app/ts/controllers/NegociacaoController.js
+importarDados() {
+
+    function isOK(res: Response) {
+
+        if(res.ok) {
+            return res;
+        } else {
+            throw new Error(res.statusText);
+        }
+    }
+
+    fetch('http://localhost:8080/dados')
+        .then(res => isOK(res))
+        .then(res => res.json())
+}
+
+Mas o TypeScript reclamará em breve que há um tipo implícito any sendo empregado pelo nosso código. Resolvemos isso explicitando que o tipo retornado é any[], um array de qualquer tipo:
+
+fetch('http://localhost:8080/dados')
+.then(res => isOK(res))
+.then(res => res.json())
+.then((dados: any[]) => {
+    ...
+})
+
+omo os dados recebidos são do tipo any[], o TypeScript não consegue detectar erros como a escrita da propriedade errada. Podemos resolver isso criando uma Interface:
+
+// app/ts/models/NegociacaoParcial.ts
+
+export interface NegociacaoParcial {
+
+    vezes: number,
+    montante: number;
+}
+Veja que a interface define duas propriedades e seus tipos. Não é à toa que essas propriedades são as mesmas da nossa API externa. Agora, sem a necessidade de instanciarmos uma classe, até porque interfaces não podem ser instanciadas, podemos usar o tipo NegociacaoParcial[] em vez de any[] nos dados retornados pela nossa API. Isso será suficiente para que o TypeScript consiga analisar nosso código e checar por erros, inclusive fornecendo autocomplete:
+
+// app/ts/models/NegociacaoParcial.ts
+
+export interface NegociacaoParcial {
+
+    vezes: number,
+    montante: number;
+}
+
+Veja que a interface define duas propriedades e seus tipos. Não é à toa que essas propriedades são as mesmas da nossa API externa. Agora, sem a necessidade de instanciarmos uma classe, até porque interfaces não podem ser instanciadas, podemos usar o tipo NegociacaoParcial[] em vez de any[] nos dados retornados pela nossa API. Isso será suficiente para que o TypeScript consiga analisar nosso código e checar por erros, inclusive fornecendo autocomplete:
+
+then((dados: NegociacaoParcial[]) => {
+    dados
+        .map(dado => new Negociacao(new Date(), dado.vezes, dado.montante))
+        .forEach(negociacao => this._negociacoes.adiciona(negociacao));
+    this._negociacoesView.update(this._negociacoes);
+})
+
+Essa solução não blinda da mudança inesperada da API, por exemplo, mudar montante para valor. Continuaríamos com um erro em runtime. Mas uma vez detectado o erro, podemos alterar nossa interface NegociacaoParcial mudando de montante para valor e isso resultará em um erro de compilação em todos os lugares que usam a interface. Perfeito, pois enquanto o desenvolvedor não ajustar para o formato da API que mudou, seu código não compilará. As chances de ele esquecer de mudar são nulas, pois seu código só compilará após a correção.
+
+Do jeito que nossa aplicação esta, se clicarmos muitas vezes em seguida no botão de importar negociações executaremos várias requisições para o servidor. Não há necessidade de tanta ansiedade por parte do usuário, mas para nos prevenirmos disso, podemos ignorar cliques que estejam dentro de uma janela de tempo definida pelo programador. No caso, se o usuário clicar em menos de meio segundo, cancelaremos a ação dele e iniciaremos uma nova. Em suma, essa solução utilizará um timer para processar as ações do usuário:
+
+Excelente, nosso código funciona. Quando o usuário clicar pela primeira vez, qualquer temporizador que esteja sendo processado será cancelado e um novo será criado. É esse temporizador que executará nosso código. Se os meio segundos passarem, o temporizador executará nosso código. Então, se ele ficar clicando várias vezes em menos de meio segundo, apenas a última operação será executada.
+
+No entanto esse código é muito invasivo, pois mistura sua lógica com a lógica do método do controller. Além disso, podemos querer usar a mesma estratégia em outros métodos da nossa aplicação. Aprendemos a criar decorators que isolam um código e que podem ser utilizados em vários lugares. Vamos criar o decorator chamado throttle, aliás, o padrão de projeto que lida com o problema que estamos enfrentando:
+// app/ts/helpers/decorators/throttle.ts
+
+export function throttle(milissegundos = 500) {
+    ...
+}
+
+Agora, basta utilizarmos nosso decorator no método do nosso controller:
+
+// código anterior omitido 
+@throttle()
+importaDados() {
+
+Contudo, se usarmos o mesmo decorator como método adiciona() de NegociacaoController teremos um problema. A página será recarregada. Isso acontece, porque como postergarmos a execução do nosso código, postergamos também event.preventDefault(). A boa notícia, é que podemos acessar event implicitamente dentro da chamada de qualquer função, sem necessariamente ele ter sido passado como parâmetro ou não para ela. Nesse sentido, vamos realizar sempre um event.preventDefault() em todos os métodos que usarem nosso decorator throttle:
+
+descriptor.value = function (...args: any[]) {
+    if (event) event.preventDefault();
+    ...
+}
+
+Veja também que o TypeScript saber que event é uma variável implícita que pode existir ou não em uma função e por isso adota o tipo implícito Event, fantástico!
+--
+A lógica de acesso à nossa API esta fixa no método importaDados de NegociacaoController. O problema dessa abordagem é que se quisermos acessar a API em outro controller, teremos que repetir código. Podemos enviar isso isolando a lógica de importação na classe NegociacaoService.
+
+// app/ts/services/NegociacaoService.ts
+
+import { NegociacaoParcial, Negociacao } from '../models/index';
+
+export class NegociacaoService {
+
+    obterNegociacoes(handler: Function): Promise<Negociacao[]> {
+
+        return fetch('http://localhost:8080/dados')
+            .then(res => handler(res))
+            .then(res => res.json())
+            .then((dados: NegociacaoParcial[]) => 
+                dados.map(dado => new Negociacao(new Date(), dado.vezes, dado.montante))
+            )
+            .catch(err => console.log(err));
+
+    }
+}
+
+Um ponto a destacar é que nosso método recebe uma handler, isto é, a função que considerará ou não a operação válida. Não podemos deixar simplesmente fixo esse código no serviço, queremos dar flexibilidade para o programador pode aplicar outros critérios que não sejam res.ok.
+
+Por fim, o retorno do método será a Promise, resultado de fetch. No entanto, Promise é um tipo genérico e precisamos indicar qual tipo estará disponível ao acessarmos seu retornado através de then. É por isso que usamos Promise<Negociacao[]>, pois através de then teremos acesso ao array de negociações.
+--
+O método importaNegociacoes de NegociacaoServive aceita receber uma função. Não é à toa que usamos o tipo Function. No entanto, podemos passar qualquer função. Por exemplo, uma que não recebe um Response e muito menos o retorna:
+
+Alguém nos impede de fazermos:
+
+// dará erro, passar function() {} ou () => {}
+this._service
+    .obterNegociacoes(function() {})
+    ...
+
+Podemos restringir um pouco mais quais funções podem ser passadas para o método através de uma interface. Com ela, apenas as funções que receberem o único parâmetro Response e retornarem Response serão válidos:
+obterNegociacoes(handler: ResponseHandler): Promise<Negociacao[]> {
+    ...
+}
+export interface ResponseHandler {
+
+    (res: Response): Response
+}
+
+A interface ResponseHandler é o tipo que define que a função deve receber um parâmetro do tipo Response e devolver um Response. Inclusive, lá no método obterNegociacoes mudamos o tipo de Function para ResponseHandler.
+
+Agora, em NegociacaoController, nosso código não compila com a função indevida que passarmos e somos alertados disso através do compilador do TypeScript. Se passarmos isOk novamente, tudo continuará funcionando, pois isOk segue a assinatura da interface.
+
+Podemos até fazermos isso se desejarmos:
+
+// app/ts/controllers/NegociacaoController.ts
+import { ResponseHandler } from '../services/index';
+// código anterior omitido 
+@throttle()
+importaDados() {
+    // de
+    const isOk: ResponseHandler = (res: Response) => {
+        if(res.ok) return res;
+        throw new Error(res.statusText);
+    }
+...
+
+Ou, para evitarmos que digitar um pouco, podemos passar uma arrow function diretamente:
+.obterNegociacoes(res => {
+    if (res.ok) return res;
+    throw new Error(res.statusText);
+})
+
+Neste capítulo vimos:
+
+O consumo de uma API externa
+O problema da ausência de tipos do retorno da API
+Uso de interface para criar um contrato
+O padrão de projeto Throttle e sua aplicação através de decorators
+Interface para definir a estrutura de funções
+=========================
