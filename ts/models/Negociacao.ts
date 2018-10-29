@@ -1,7 +1,6 @@
-import { Imprimivel } from './imprimivel';
-import { Igualavel } from './Igualavel';
+import { MeuObjeto } from './MeuObjeto';
 
-export class Negociacao implements Imprimivel, Igualavel<Negociacao>
+export class Negociacao implements MeuObjeto<Negociacao>
 {
     // declaração das propriedades de classe
     // typescript
