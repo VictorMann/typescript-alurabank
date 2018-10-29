@@ -81,6 +81,13 @@ export class NegociacaoController
                 if (res.ok) return res;
                 throw new Error(res.statusText);
             })
+            .then(negociacoesParaImportar =>
+                negociacoesParaImportar.filter(negociacaoParaImportar =>
+                    !this._negociacoes.paraArray().some(negociacao => 
+                        negociacao.ehIgual(negociacaoParaImportar)
+                    )
+                )
+            )
             .then(negociacoes => {
                 negociacoes.forEach(negociacao =>
                     this._negociacoes.adiciona(negociacao)
