@@ -70,35 +70,36 @@ export class NegociacaoController
 
     // obtem dados de uma API
     // define intervalo, para evitar cliques consecutivos onerosamente
+    // ES2017 foi introduzida a sintaxe async/await
     @throttle()
-    importaDados ()
+    async importaDados ()
     {
-        // era usado como param de obterNegociacoes()
-        // function isOk (res: Response) { if (res.ok) return res; throw new Error(res.statusText); }
-        
-        this._negociacoesService
+        try {
+            // era usado como param de obterNegociacoes()
+            // function isOk (res: Response) { if (res.ok) return res; throw new Error(res.statusText); }
+            const negociacoesParaImportar = await this._negociacoesService
             .obterNegociacoes(res => {
                 if (res.ok) return res;
                 throw new Error(res.statusText);
-            })
-            .then(negociacoesParaImportar =>
-                negociacoesParaImportar.filter(negociacaoParaImportar =>
-                    !this._negociacoes.paraArray().some(negociacao => 
-                        negociacao.ehIgual(negociacaoParaImportar)
-                    )
+            });
+            
+            negociacoesParaImportar
+            .filter(negociacaoParaImportar => 
+                !this._negociacoes.paraArray().some(negociacao => 
+                    negociacao.ehIgual(negociacaoParaImportar)
                 )
             )
-            .then(negociacoes => {
-                negociacoes.forEach(negociacao =>
-                    this._negociacoes.adiciona(negociacao)
-                );
-                // renderiza a as novas negociacoes
-                this._negociacoesView.update(this._negociacoes);
-            })
-            .catch(err => {
-                console.log(err);
-                this._mensagemView.update('Não foi possível buscar a API');
-            });
+            .forEach(negociacao =>
+                this._negociacoes.adiciona(negociacao)
+            );
+            // renderiza a as novas negociacoes
+            this._negociacoesView.update(this._negociacoes);
+
+        } catch (err) {
+
+            console.log(err);
+            this._mensagemView.update('Não foi possível buscar a API');
+        }
     }
 
     // valida se é dia útil
