@@ -1,7 +1,8 @@
 import { Negociacao } from './Negociacao';
 import { Imprimivel } from './Imprimivel';
+import { Igualavel } from './Igualavel';
 
-export class Negociacoes implements Imprimivel
+export class Negociacoes implements Imprimivel, Igualavel<Negociacoes>
 {
     // definindo o tipo que o array aceita
     private _negociacoes: Array<Negociacao> = [];
@@ -26,5 +27,11 @@ export class Negociacoes implements Imprimivel
     {
         console.log('-- paraTexto --');
         console.log(JSON.stringify(this._negociacoes));
+    }
+
+    // exigido pela interface Igualavel
+    ehIgual (negociacoes: Negociacoes)
+    {
+        return JSON.stringify(this.paraArray()) == JSON.stringify(negociacoes.paraArray());
     }
 }
