@@ -585,3 +585,141 @@ Uso de interface para criar um contrato
 O padrão de projeto Throttle e sua aplicação através de decorators
 Interface para definir a estrutura de funções
 =========================
+MODULO 5
+
+lindo com interfaces 
+
+Nosso código continua funcionando, excelente. Deixamos de herdar desnecessariamente de uma classe e garantimos um comportamento comum entre objetos através de uma interface. Contudo, há algo curioso.
+
+Não é necessário que uma classe implemente a interface para que seja um valor válido. A implementação de uma interface não deixa o desenvolvedor esquecer de implementar o método, mas podemos fazer algo assim que é totalmente válido:
+
+imprime(negociacao, this._negociacoes, { paraTexto: () => console.log('oi')});
+Veja que o terceiro parâmetro é um objeto JavaScript que possui a função paraTexto com a mesma assinatura da interface Imprimivel. TypeScript é inteligente e quando encontra uma paridade com o tipo de interface compila o código. Basta trocarmos uma letrinha por exemplo, paraText para que o código não compile.
+
+Vimos que ao implementarmos uma interface que possua métodos, seremos obrigados a implementá-los respeitando sua assinatura. Além disso, podemos utilizar o tipo da interface para referenciar objetos que implemente a interface. Falando em método, isto é, comportamento de objetos, não é raro termos que comparar um objeto com outro. Aliás, a implementação desta comparação pode divergir entre diferentes objetos.
+
+Dessa forma, podemos criar a interface Igualavel que possua o método ehIgual. O método deve receber como parâmetro um objeto de mesmo tipo do objeto envolvido na comparação, retornando true ou fase para indicar igualdade ou não.
+
+// app/ts/models/Igualavel.ts
+export interface Igualavel<T> {
+
+    ehIgual(objeto: T): boolean
+}
+
+Excelente, mas a implementação de Imprimivel e Igualavel é algo bem comum de implementarmos para praticamente todos nossas classes do modelo. É por isso que podemos criar uma interface que estende essas duas que criamos, bastando implementarmos a nova interface agregado.
+
+Vamos criar a interface MeuObjeto:
+
+import { Imprimivel, Igualavel } from './index';
+
+export interface MeuObjeto<T> extends Imprimivel, Igualavel<T>  { }
+
+Uma interface pode estender quantas interfaces forem necessárias. No caso, MeuObjeto teve que usar o tipo genético <T> para que esse seja considerado na interface Igualave.
+
+Agora, vamos fazer com que Negociacao e Negociacoes implementem MeuObjeto:
+
+import { MeuObjeto } from './index';
+
+export class Negociacao implements MeuObjeto<Negociacao> {
+
+   // código omitido 
+}
+
+Union Types
+
+Para resolvermos este problema, poderíamos ter usado o tipo any, mas nesse caso perderíamos o autocomplete e a checagem mais rígida do TypeScript que garante a saúde do nosso código.
+
+Podemos fazer com que a função aceite tanto string quanto number através de union types. Alterando nosso código:
+
+// ATENÇÃO, NOSSO CÓDIGO AINDA NÃO COMPILARÁ
+
+// agora aceita os tipos string e number!
+function processaToken(token: string | number) {
+
+    // muda o dígito 2 por X!
+        / erro de compilação aqui
+    return token.replace(/2/g,'X');
+}
+
+// compila
+const tokenProcessado1 = processaToken('1234');
+// compila
+const tokenProcessado2 = processaToken(1234);
+
+ Guards
+Podemos fazer com que nosso código compile checando o tipo dentro da função:
+
+function processaToken(token: string | number) {
+
+    if(typeof(token) === 'string') {
+
+        // typescript entende que é o tipo string e faz autocomplete para este tipo. A função replace só existe em string
+        return token.replace(/2/g,'X');
+    } else {
+        // toFixed só existe em mumber!
+        return token.toFixed().replace(/2/g,'X');
+    }
+
+}
+
+const tokenProcessado1 = processaToken('1234');
+const tokenProcessado2 = processaToken(1234);
+
+Com Type Guards, quando realizamos o teste verificando o tipo do parâmetro, dentro da condição o compilador saber inferir o tipo correto e a checagem e autocomplete para aquele tipo é ativado. Dentro do if o tipo é considerado string e no else number.
+
+Considerações sobre o uso de Type Guards
+Apesar de ser um recurso da linguagem, essa estratégia remete à programação procedural pois envolve uma sucessão de if's para detectar o tipo dos elementos. É por este motivo que não foi utilizado em nosso projeto e demos preferência ao polimorfismo.
+
+Vimos um requinte da linguagem TypeScript é que é o uso de Union Types e Type Guards.
+
+Vejamos um exemplo:
+
+function processaToken(token: string | number) {
+
+    if(typeof(token) === 'string') {
+
+        return token.replace(/2/g,'X');
+    } else {
+        return token.toFixed().replace(/2/g,'X');
+    }
+
+}
+Contudo, é possível criar um alias para todos os tipos envolvidos no union type. Vejamos:
+
+
+// criando o alias!
+type MeuToken = string |  number;
+
+function processaToken(token: MeuToken) {
+
+    if(typeof(token) === 'string') {
+
+        return token.replace(/2/g,'X');
+    } else {
+
+        return token.toFixed().replace(/2/g,'X');
+    }
+
+}
+O código continua compilando, mas em vez de indicarmos no parâmetro da função os tipos string e number, passamos o alias que criamos, no caso MeuToken. O Type alias é interessante quando trabalhamos com muitos union types e queremos padronizar em um único local esses conjunto de tipos.
+
+É um recurso que não utilizamos em nossa aplicação, mas que o aluno precisa conhecer para poder analisar código de terceiros com maior segurança.
+
+Vimos neste capítulo:
+
+Um pouco mais de polimorfismo em linguagens estaticamente tipadas
+Interface que definem a assinatura de métodos
+A não importar negociações duplicadas
+Que uma interface pode estender quantas interfaces forem necessárias
+
+TypeScript se baseia no ES2015, todavia, na versão ES2017 foi introduzida a sintaxe async/await. Ela funciona da seguinte maneira. Dentro de uma uma função ou método async, isto é, uma função ou método declarado como async NomeDoMetodoOuFuncao, podemos tratar o retorno de promises de uma maneira muito especial.
+
+Por padrão, capturamos o retorno de uma promise dentro da função then. Mas se dentro de uma função async, usamos a instrução await antes da chamada de um método que retorne uma promise, podemos capturar seu retorno sem a necessidade da chamada de then, como se ela fosse uma função síncrona tradicional.
+
+Vejamos um exemplo:
+
+// o método importDados é um método async!
+
+Mas se não chamamos mais then, não chamaremos também catch, certo? Então, como conseguiremos tratar possíveis erros? Quando usamos async/wait, por mais que o código seja assíncrono, podemos usar try e catch para lidar com possíveis exceções em nosso código. Por mais que nosso código pareça um código síncrono, ele continua sendo um código assíncrono.
+
+A boa notícia é que mesmo o TypeScript suportando apenas o ES2015 ele introduziu em sua sintaxe o async/await do ES2017 a partir da sua versão 2.3. Isso não quer dizer que somos obrigados a utilizá-la, mas seu uso melhor bastante a legibilidade do nosso código.
